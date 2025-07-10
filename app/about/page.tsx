@@ -8,7 +8,7 @@ export default function AboutPage() {
       name: "Dr. Sarah Johnson",
       subject: "Mathematics",
       image:
-        "https://images.unsplash.com/photo-1607990281513-2c110a25bd8c?w=200&h=200&fit=crop&crop=face",
+        "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=200&h=200&fit=crop&crop=face",
       experience: "10+ years",
       qualification: "PhD in Mathematics",
       rating: 4.9,
@@ -17,7 +17,7 @@ export default function AboutPage() {
       name: "Prof. Michael Chen",
       subject: "Physics",
       image:
-        "https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=200&h=200&fit=crop&crop=face",
+        "https://images.unsplash.com/photo-1560250097-0b93528c311a?w=200&h=200&fit=crop&crop=face",
       experience: "12+ years",
       qualification: "M.Sc Physics, B.Ed",
       rating: 4.8,
@@ -26,7 +26,7 @@ export default function AboutPage() {
       name: "Dr. Emily Davis",
       subject: "Chemistry",
       image:
-        "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=200&h=200&fit=crop&crop=face",
+        "https://images.unsplash.com/photo-1551836022-d5d88e9218df?w=200&h=200&fit=crop&crop=face",
       experience: "8+ years",
       qualification: "PhD in Chemistry",
       rating: 4.9,
@@ -159,7 +159,7 @@ export default function AboutPage() {
             <div className="relative">
               <div className="aspect-square rounded-2xl bg-gradient-to-br from-primary/20 to-secondary/20 p-8">
                 <img
-                  src="https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=400&h=400&fit=crop&crop=center"
+                  src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=400&h=400&fit=crop&crop=center"
                   alt="About EduTech Academy - Modern classroom with students learning"
                   className="w-full h-full object-cover rounded-xl"
                 />
