@@ -3,12 +3,12 @@ import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyDvhcMJPmXsP2d3OTXw0oKPukHHomVE-xw",
-  authDomain: "edutech-academy.firebaseapp.com",
-  projectId: "edutech-academy",
-  storageBucket: "edutech-academy.firebasestorage.app",
-  messagingSenderId: "112097569082",
-  appId: "1:112097569082:web:36db4afbe6d26bbb578803"
+  apiKey: "",
+  authDomain: "",
+  projectId: "",
+  storageBucket: "",
+  messagingSenderId: "",
+  appId: ""
 };
 
 const app = initializeApp(firebaseConfig);
