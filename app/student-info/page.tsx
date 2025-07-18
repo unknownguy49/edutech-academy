@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { onAuthStateChanged } from "firebase/auth";
+import { auth } from "@/lib/firebase";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -43,33 +45,26 @@ export default function StudentInfoPage() {
   const router = useRouter();
 
   useEffect(() => {
-    // Check if user is authenticated
-    const userData = localStorage.getItem("user");
-    if (userData) {
-      const parsedUser = JSON.parse(userData);
-      if (parsedUser.isAuthenticated) {
-        setUser(parsedUser);
-        // Initialize edit form with user data
+    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+      if (firebaseUser) {
+        setUser(firebaseUser);
         setEditForm({
-          name: parsedUser.name || "",
-          email: parsedUser.email || "",
-          phone: parsedUser.phone || "",
-          address:
-            parsedUser.address || "123 Student Street, Learning City, LC 12345",
-          bio:
-            parsedUser.bio ||
-            "Passionate learner focused on academic excellence and personal growth.",
-          dateOfBirth: parsedUser.dateOfBirth || "1995-06-15",
-          emergencyContact: parsedUser.emergencyContact || "Jane Doe (Mother)",
-          emergencyPhone: parsedUser.emergencyPhone || "+1 (555) 987-6543",
+          name: firebaseUser.displayName || "",
+          email: firebaseUser.email || "",
+          phone: "",
+          address: "123 Student Street, Learning City, LC 12345",
+          bio: "Passionate learner focused on academic excellence and personal growth.",
+          dateOfBirth: "1995-06-15",
+          emergencyContact: "Jane Doe (Mother)",
+          emergencyPhone: "+1 (555) 987-6543",
         });
       } else {
+        setUser(null);
         router.push("/auth");
       }
-    } else {
-      router.push("/auth");
-    }
-    setIsLoading(false);
+      setIsLoading(false);
+    });
+    return () => unsubscribe();
   }, [router]);
 
   const handleSave = () => {

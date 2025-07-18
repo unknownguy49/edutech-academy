@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { onAuthStateChanged } from "firebase/auth";
+import { auth } from "@/lib/firebase";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
@@ -27,19 +29,16 @@ export default function MyCoursesPage() {
   const router = useRouter();
 
   useEffect(() => {
-    // Check if user is authenticated
-    const userData = localStorage.getItem("user");
-    if (userData) {
-      const parsedUser = JSON.parse(userData);
-      if (parsedUser.isAuthenticated) {
-        setUser(parsedUser);
+    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+      if (firebaseUser) {
+        setUser(firebaseUser);
       } else {
+        setUser(null);
         router.push("/auth");
       }
-    } else {
-      router.push("/auth");
-    }
-    setIsLoading(false);
+      setIsLoading(false);
+    });
+    return () => unsubscribe();
   }, [router]);
 
   if (isLoading) {

@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { onAuthStateChanged, signOut } from "firebase/auth";
+import { auth } from "@/lib/firebase";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { ModeToggle } from "@/components/mode-toggle";
@@ -13,51 +15,15 @@ export function Header() {
   const router = useRouter();
 
   useEffect(() => {
-    // Check if user is authenticated
-    const checkAuth = () => {
-      const userData = localStorage.getItem("user");
-      if (userData) {
-        const parsedUser = JSON.parse(userData);
-        if (parsedUser.isAuthenticated) {
-          setUser(parsedUser);
-        } else {
-          setUser(null);
-        }
-      } else {
-        setUser(null);
-      }
-    };
-
-    // Initial check
-    checkAuth();
-
-    // Listen for storage changes (when user logs in/out in another tab)
-    const handleStorageChange = (e: StorageEvent) => {
-      if (e.key === "user") {
-        checkAuth();
-      }
-    };
-
-    window.addEventListener("storage", handleStorageChange);
-
-    // Custom event for same-tab auth state changes
-    const handleAuthChange = () => {
-      checkAuth();
-    };
-
-    window.addEventListener("authStateChanged", handleAuthChange);
-
-    return () => {
-      window.removeEventListener("storage", handleStorageChange);
-      window.removeEventListener("authStateChanged", handleAuthChange);
-    };
+    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+      setUser(firebaseUser);
+    });
+    return () => unsubscribe();
   }, []);
 
-  const handleLogout = () => {
-    localStorage.removeItem("user");
+  const handleLogout = async () => {
+    await signOut(auth);
     setUser(null);
-    // Dispatch custom event to notify other components
-    window.dispatchEvent(new Event("authStateChanged"));
     router.push("/");
   };
 

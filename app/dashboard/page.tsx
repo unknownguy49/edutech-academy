@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { onAuthStateChanged, signOut } from "firebase/auth";
+import { auth } from "@/lib/firebase";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
@@ -28,25 +30,20 @@ export default function DashboardPage() {
   const router = useRouter();
 
   useEffect(() => {
-    // Check if user is authenticated
-    const userData = localStorage.getItem("user");
-    if (userData) {
-      const parsedUser = JSON.parse(userData);
-      if (parsedUser.isAuthenticated) {
-        setUser(parsedUser);
+    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+      if (firebaseUser) {
+        setUser(firebaseUser);
       } else {
+        setUser(null);
         router.push("/auth");
       }
-    } else {
-      router.push("/auth");
-    }
-    setIsLoading(false);
+      setIsLoading(false);
+    });
+    return () => unsubscribe();
   }, [router]);
 
-  const handleLogout = () => {
-    localStorage.removeItem("user");
-    // Dispatch custom event to notify other components
-    window.dispatchEvent(new Event("authStateChanged"));
+  const handleLogout = async () => {
+    await signOut(auth);
     router.push("/");
   };
 
@@ -65,8 +62,16 @@ export default function DashboardPage() {
     return null; // Will redirect to auth page
   }
 
+  // Only show dashboard for johndoe@gmail.com
+  if (user.email !== "johndoe@gmail.com") {
+    if (typeof window !== "undefined") {
+      window.location.href = "/clean-dashboard";
+    }
+    return null;
+  }
+
   const studentData = {
-    name: user.name || "Student",
+    name: user.displayName || "Student",
     email: user.email || "student@example.com",
     avatar: "/placeholder.svg?height=60&width=60",
     enrolledCourses: 3,

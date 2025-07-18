@@ -1,6 +1,11 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import {
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+} from "firebase/auth";
+import { auth } from "@/lib/firebase";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -39,16 +44,7 @@ export default function AuthPage() {
   const router = useRouter();
 
   // Check if user is already authenticated
-  useEffect(() => {
-    const userData = localStorage.getItem("user");
-    if (userData) {
-      const parsedUser = JSON.parse(userData);
-      if (parsedUser.isAuthenticated) {
-        // User is already logged in, redirect to dashboard
-        router.push("/dashboard");
-      }
-    }
-  }, [router]);
+  // Optionally, you can add a Firebase auth state listener here if you want auto-redirect for logged-in users
 
   // Form state
   const [loginForm, setLoginForm] = useState({
@@ -90,50 +86,36 @@ export default function AuthPage() {
 
     // Validation
     const newErrors: Record<string, string> = {};
-
     if (!loginForm.email) {
       newErrors.email = "Email is required";
     } else if (!validateEmail(loginForm.email)) {
       newErrors.email = "Please enter a valid email address";
     }
-
     if (!loginForm.password) {
       newErrors.password = "Password is required";
     } else if (!validatePassword(loginForm.password)) {
       newErrors.password = "Password must be at least 6 characters";
     }
-
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
       setIsLoading(false);
       return;
     }
-
-    // Simulate API call delay
-    await new Promise((resolve) => setTimeout(resolve, 1500));
-
-    // For now, accept any valid email/password combination
-    setSuccess("Login successful! Redirecting to dashboard...");
-
-    // Store user data in localStorage (simple session simulation)
-    localStorage.setItem(
-      "user",
-      JSON.stringify({
-        email: loginForm.email,
-        name: loginForm.email.split("@")[0],
-        isAuthenticated: true,
-        loginTime: new Date().toISOString(),
-      })
-    );
-
-    // Dispatch custom event to notify other components
-    window.dispatchEvent(new Event("authStateChanged"));
-
-    // Redirect to dashboard after a short delay
-    setTimeout(() => {
-      router.push("/dashboard");
-    }, 1000);
-
+    try {
+      const userCredential = await signInWithEmailAndPassword(
+        auth,
+        loginForm.email,
+        loginForm.password
+      );
+      setSuccess("Login successful! Redirecting...");
+      if (loginForm.email === "johndoe@gmail.com") {
+        router.push("/dashboard");
+      } else {
+        router.push("/clean-dashboard");
+      }
+    } catch (error: any) {
+      setErrors({ password: error.message });
+    }
     setIsLoading(false);
   };
 
@@ -146,73 +128,54 @@ export default function AuthPage() {
 
     // Validation
     const newErrors: Record<string, string> = {};
-
     if (!signupForm.fullName.trim()) {
       newErrors.fullName = "Full name is required";
     } else if (signupForm.fullName.trim().length < 2) {
       newErrors.fullName = "Full name must be at least 2 characters";
     }
-
     if (!signupForm.email) {
       newErrors.email = "Email is required";
     } else if (!validateEmail(signupForm.email)) {
       newErrors.email = "Please enter a valid email address";
     }
-
     if (!signupForm.phone) {
       newErrors.phone = "Phone number is required";
     } else if (!validatePhone(signupForm.phone)) {
       newErrors.phone = "Please enter a valid phone number";
     }
-
     if (!signupForm.password) {
       newErrors.password = "Password is required";
     } else if (!validatePassword(signupForm.password)) {
       newErrors.password = "Password must be at least 6 characters";
     }
-
     if (!signupForm.confirmPassword) {
       newErrors.confirmPassword = "Please confirm your password";
     } else if (signupForm.password !== signupForm.confirmPassword) {
       newErrors.confirmPassword = "Passwords do not match";
     }
-
     if (!signupForm.acceptTerms) {
       newErrors.acceptTerms = "You must accept the terms and conditions";
     }
-
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
       setIsLoading(false);
       return;
     }
-
-    // Simulate API call delay
-    await new Promise((resolve) => setTimeout(resolve, 1500));
-
-    // For now, accept any valid signup
-    setSuccess("Account created successfully! Redirecting to dashboard...");
-
-    // Store user data in localStorage
-    localStorage.setItem(
-      "user",
-      JSON.stringify({
-        email: signupForm.email,
-        name: signupForm.fullName,
-        phone: signupForm.phone,
-        isAuthenticated: true,
-        loginTime: new Date().toISOString(),
-      })
-    );
-
-    // Dispatch custom event to notify other components
-    window.dispatchEvent(new Event("authStateChanged"));
-
-    // Redirect to dashboard after a short delay
-    setTimeout(() => {
-      router.push("/dashboard");
-    }, 1000);
-
+    try {
+      await createUserWithEmailAndPassword(
+        auth,
+        signupForm.email,
+        signupForm.password
+      );
+      setSuccess("Account created successfully! Redirecting...");
+      if (signupForm.email === "johndoe@gmail.com") {
+        router.push("/dashboard");
+      } else {
+        router.push("/clean-dashboard");
+      }
+    } catch (error: any) {
+      setErrors({ password: error.message });
+    }
     setIsLoading(false);
   };
 
